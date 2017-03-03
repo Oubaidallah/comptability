@@ -1,7 +1,10 @@
 package main.java.recognizer;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -9,43 +12,50 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataFormatImpl;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageInputStream;
+import javax.xml.soap.Node;
 
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 public class ImageDPI {
-	
+
 	public static void main(String[] args) throws IOException {
 		
-        File input = new File(args[0]);
+		//BufferedImage iis = ImageIO.read(new File("test-dpi.jpg"));
+		ImageInputStream iis = ImageIO.createImageInputStream(new File("test-dpi.jpg"));
+	    Iterator it = ImageIO.getImageReaders(iis);
+	    if (!it.hasNext())
+	    {
+	        System.err.println("No reader for this format");
+	        return;
+	    }
+	    ImageReader reader = (ImageReader) it.next();
+	    reader.setInput(iis);
 
-        ImageInputStream stream = ImageIO.createImageInputStream(input);
-        Iterator<ImageReader> readers = ImageIO.getImageReaders(stream);
-
-        if (readers.hasNext()) {
-            ImageReader reader = readers.next();
-            reader.setInput(stream);
-
-            IIOMetadata metadata = reader.getImageMetadata(0);
-            IIOMetadataNode standardTree = (IIOMetadataNode) metadata.getAsTree(IIOMetadataFormatImpl.standardMetadataFormatName);
-            IIOMetadataNode dimension = (IIOMetadataNode) standardTree.getElementsByTagName("Dimension").item(0);
-            int horizontalPixelSizeMM = getPixelSizeMM(dimension, "HorizontalPixelSize");
-            int verticalPixelSizeMM = getPixelSizeMM(dimension, "VerticalPixelSize");
-
-            // TODO: Convert pixelsPerMM to DPI left as an exercise to the reader.. ;-)  
-
-            System.err.println("horizontalPixelSizeMM: " + horizontalPixelSizeMM);
-            System.err.println("verticalPixelSizeMM: " + verticalPixelSizeMM);
-        }
-        else {
-            System.err.printf("Could not read %s\n", input);
-        }
-    }
-
-    private static int getPixelSizeMM(final IIOMetadataNode dimension, final String elementName) {
-        // NOTE: The standard metadata format has defined dimension to pixels per millimeters, not DPI...
-        NodeList pixelSizes = dimension.getElementsByTagName(elementName);
-        IIOMetadataNode pixelSize = pixelSizes.getLength() > 0 ? (IIOMetadataNode) pixelSizes.item(0) : null;
-        return pixelSize != null ? Integer.parseInt(pixelSize.getAttribute("value")) : -1;
-    }
+	    IIOMetadata meta = reader.getImageMetadata(0);
+	    IIOMetadataNode root = (IIOMetadataNode) meta.getAsTree("javax_imageio_1.0");
+	    NodeList nodes = root.getElementsByTagName("HorizontalPixelSize");
+	    if (nodes.getLength() > 0)
+	    {
+	        IIOMetadataNode dpcWidth = (IIOMetadataNode) nodes.item(0);
+	        NamedNodeMap nnm = dpcWidth.getAttributes();
+	        Node item = (Node) nnm.item(0);
+	        int xDPI = Math.round(25.4f / Float.parseFloat(item.getNodeValue()));
+	        System.out.println("xDPI: " + xDPI);
+	    }
+	    else
+	        System.out.println("xDPI: -");
+	    if (nodes.getLength() > 0)
+	    {
+	        nodes = root.getElementsByTagName("VerticalPixelSize");
+	        IIOMetadataNode dpcHeight = (IIOMetadataNode) nodes.item(0);
+	        NamedNodeMap nnm = dpcHeight.getAttributes();
+	        Node item = (Node) nnm.item(0);
+	        int yDPI = Math.round(25.4f / Float.parseFloat(item.getNodeValue()));
+	        System.out.println("yDPI: " + yDPI);
+	    }
+	    else
+	        System.out.println("yDPI: -");
+	}
 
 }
