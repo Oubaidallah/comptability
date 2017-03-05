@@ -3,6 +3,8 @@ package main.java.recognizer;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JFrame;
+
 import org.apache.sanselan.ImageInfo;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
@@ -11,7 +13,7 @@ public class ImageDPI {
 
 	public static void main(String[] args) {
 		
-		File file = new File("C:\\Sanstitre.png");
+		File file = new File("C:\\test350.jpg");
 		
 		ImageInfo imageInfo = null;
 		try {
@@ -27,14 +29,13 @@ public class ImageDPI {
 		final int physicalWidthDpi = imageInfo.getPhysicalWidthDpi();
 		final int physicalHeightDpi = imageInfo.getPhysicalHeightDpi();
 		
+		
 		if((physicalWidthDpi<300) || (physicalHeightDpi<300)){
 			System.out.println("DPI is less then 300 : Width dpi = "+physicalWidthDpi +" Height dpi = " + physicalHeightDpi);
 		} else
 		{
-			System.out.println("DPI is OK :D");
+			System.out.println("DPI is OK : Width dpi = "+physicalWidthDpi +" Height dpi = " + physicalHeightDpi);
 		}
-		
-		
 		
 
 	}
