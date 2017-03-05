@@ -27,8 +27,15 @@ public class ImageDPI {
 		final int physicalWidthDpi = imageInfo.getPhysicalWidthDpi();
 		final int physicalHeightDpi = imageInfo.getPhysicalHeightDpi();
 		
+		if((physicalWidthDpi<300) || (physicalHeightDpi<300)){
+			System.out.println("DPI is less then 300 : Width dpi = "+physicalWidthDpi +" Height dpi = " + physicalHeightDpi);
+		} else
+		{
+			System.out.println("DPI is OK :D");
+		}
 		
-		System.out.println(physicalWidthDpi +" ... " + physicalHeightDpi);
+		
+		
 
 	}
 
